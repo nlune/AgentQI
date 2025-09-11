@@ -6,28 +6,44 @@ import sys
 from pathlib import Path
 import numpy as np
 from utils.chunking import split_wordboxes_chunks
+import ast  # Add this import at the top
 
 
-def concatenate_documents(hit_dict_list):
-    added_docs = set()
-    context = ""
+def concatenate_documents(hit_dicts_list):
+    """
+    Concatenate documents from hit dictionaries and return metadata.
+    Returns: (concatenated_text, list_of_metadata)
+    """
+    documents = []
     all_metadata = []
     
-    for hit_dict in hit_dict_list:
-        for id, hit, metadata in zip(hit_dict['ids'][0], hit_dict["documents"][0], hit_dict["metadatas"][0]):
-            if id not in added_docs:
-                # Add chunk metadata info to the document text
-                chunk_info = f"Chunk #{metadata.get('chunk_idx', 'Unknown')}"
-                if metadata.get('header'):
-                    chunk_info += f" (Header: {metadata['header']})"
-                if metadata.get('page') is not None:
-                    chunk_info += f" [Page {metadata['page']}]"
+    for hit_dict in hit_dicts_list:
+        if hit_dict and 'documents' in hit_dict:
+            docs = hit_dict['documents'][0] if hit_dict['documents'] else []
+            metadatas = hit_dict['metadatas'][0] if hit_dict['metadatas'] else []
+            
+            for doc, metadata in zip(docs, metadatas):
+                chunk_idx = metadata.get('chunk_idx', 'Unknown')
+                header = metadata.get('header', '')
                 
-                context += f"{chunk_info}: {hit}\n\n"
-                all_metadata.append(metadata)
-                added_docs.add(id)
+                # Convert bbox string back to list
+                bbox_str = metadata.get('bbox', '[]')
+                try:
+                    bbox = ast.literal_eval(bbox_str)  # <-- HERE: Convert string back to list
+                except (ValueError, SyntaxError):
+                    bbox = []
+                
+                # Format document with metadata
+                header_text = f" (Header: {header})" if header else ""
+                formatted_doc = f"Chunk #{chunk_idx}{header_text}: {doc}\n\n"
+                documents.append(formatted_doc)
+                
+                # Add metadata with converted bbox
+                metadata_copy = metadata.copy()
+                metadata_copy['bbox'] = bbox  # <-- Store as list in returned metadata
+                all_metadata.append(metadata_copy)
     
-    return context, all_metadata
+    return ''.join(documents), all_metadata
 
 class VecDB:
     def __init__(self, settings: "BaseSettings", dbpath: str, collection_name: str, embedding_model: str):
@@ -58,7 +74,7 @@ class VecDB:
         )
         ids = [f"{doc_name}_{i}" for i in range(len(chunks['chunk_text']))]
         metadatas = [
-            {"source": doc_name, "chunk_idx": i, "header": headers[i], "bbox": chunks['bboxes'][i], "page": chunks['pages'][i]}
+            {"source": doc_name, "chunk_idx": i, "header": headers[i], "bbox": str(chunks['bboxes'][i]), "page": chunks['pages'][i]}
             for i in range(len(chunks["chunk_text"]))
         ]
         self.collection.upsert(

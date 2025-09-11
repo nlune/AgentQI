@@ -1,3 +1,4 @@
+from backend.utils.chunking import split_wordboxes_chunks
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 import tempfile
@@ -28,8 +29,8 @@ async def process_pdf(file: UploadFile = File(...)):
         ocr_processor = OCRDocProcessor(settings)
         
         # Extract text from PDF
-        extracted_text = ocr_processor.get_text(temp_file_path)
-        
+        extracted_text, line_boxes = ocr_processor.get_text_with_boxes(temp_file_path)
+
         # Initialize vector database
         vec_db = VecDB(
             settings=settings,
@@ -38,9 +39,9 @@ async def process_pdf(file: UploadFile = File(...)):
             embedding_model="all-MiniLM-L6-v2"
         )
         
-        # Add document to vector database
+        # Add document to vector database using line_boxes
         doc_name = file.filename
-        vec_db.add_document(doc_name, extracted_text)
+        vec_db.add_document(doc_name, line_boxes)
         
         # Clean up temporary file
         os.unlink(temp_file_path)
@@ -51,7 +52,8 @@ async def process_pdf(file: UploadFile = File(...)):
                 "filename": file.filename,
                 "extracted_text": extracted_text.strip(),
                 "text_length": len(extracted_text.strip()),
-                "document_name": doc_name
+                "document_name": doc_name,
+                "line_boxes_count": len(line_boxes),
             }
         )
         
