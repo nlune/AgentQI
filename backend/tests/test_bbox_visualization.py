@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Test file to visualize bounding box outputs from OCR processing.
+Test file to visualize line-level bounding box outputs from OCR processing.
+Updated to work with the new line-level bounding boxes instead of word-level.
 Located in tests/ directory to keep testing separate from core functionality.
 """
 
@@ -12,17 +13,18 @@ import pymupdf
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.doc_ocr import OCRDocProcessor
+from utils.chunking import split_wordboxes_chunks
 
 from settings import settings
 
-def test_visualize_word_bboxes():
-    """Test function to visualize word-level bounding boxes."""
+def test_visualize_line_bboxes():
+    """Test function to visualize line-level bounding boxes."""
     
     # Test file paths
-    test_pdf = "../../test_files/Certificate-BAM-S030.pdf"
-    output_pdf = "word_bbox_visualization.pdf"
+    test_pdf = "../../test_files/Certificate-BAM-A001.pdf"
+    output_pdf = "line_bbox_visualization.pdf"
     
-    print(f"🔍 Testing word-level bounding box visualization")
+    print(f"🔍 Testing line-level bounding box visualization")
     print(f"Input PDF: {test_pdf}")
     print(f"Output PDF: {output_pdf}")
     
@@ -33,20 +35,20 @@ def test_visualize_word_bboxes():
     # Initialize OCR processor
     ocr_processor = OCRDocProcessor(settings)
     
-    print("🔄 Extracting text and word bounding boxes...")
+    print("🔄 Extracting text and line bounding boxes...")
     
-    # Extract text and word boxes using existing method
-    extracted_text, word_boxes = ocr_processor.get_text(test_pdf, out_path='extr.txt', save_text=True)
+    # Extract text and line boxes using the new method
+    extracted_text, line_boxes = ocr_processor.get_text_with_boxes(test_pdf)
     
-    print(f"✅ Extracted {len(word_boxes)} word boxes")
+    print(f"✅ Extracted {len(line_boxes)} line boxes")
     print(f"📄 Text length: {len(extracted_text)} characters")
     
-    # Show first few words for debugging
-    print("\n📝 First 10 word boxes:")
-    for i, word_box in enumerate(word_boxes[:10]):
-        bbox = word_box['bbox']
-        text_preview = word_box['text'][:30]
-        print(f"  {i:2d}: Page {word_box['page']} | '{text_preview}' | BBox: ({bbox[0]:.1f}, {bbox[1]:.1f}, {bbox[2]:.1f}, {bbox[3]:.1f})")
+    # Show first few lines for debugging
+    print("\n📝 First 10 line boxes:")
+    for i, line_box in enumerate(line_boxes[:10]):
+        bbox = line_box['bbox']
+        text_preview = line_box['text'][:50]
+        print(f"  {i:2d}: Page {line_box['page']} | Line {line_box.get('line_no', 'N/A')} | '{text_preview}' | BBox: ({bbox[0]:.1f}, {bbox[1]:.1f}, {bbox[2]:.1f}, {bbox[3]:.1f})")
     
     # Open PDF for annotation
     doc = pymupdf.open(test_pdf)
@@ -61,13 +63,13 @@ def test_visualize_word_bboxes():
         (0, 1, 1),     # Cyan for page 5
     ]
     
-    print(f"\n🎨 Drawing {len(word_boxes)} word boundaries...")
+    print(f"\n🎨 Drawing {len(line_boxes)} line boundaries...")
     
-    # Draw word boxes (limit to first 50 for clarity)
-    for i, word_box in enumerate(word_boxes[:50]):
-        page_num = word_box['page']
-        bbox = word_box['bbox']
-        word_text = word_box['text']
+    # Draw line boxes (show all lines for better visualization)
+    for i, line_box in enumerate(line_boxes):
+        page_num = line_box['page']
+        bbox = line_box['bbox']
+        line_text = line_box['text']
         
         if page_num >= len(doc):
             print(f"Warning: Page {page_num} not found in document")
@@ -82,20 +84,20 @@ def test_visualize_word_bboxes():
             # Use different colors for different pages
             color = page_colors[page_num % len(page_colors)]
             
-            # Draw word boundary
-            page.draw_rect(rect, color=color, width=1)
+            # Draw line boundary with thicker line for better visibility
+            page.draw_rect(rect, color=color, width=2)
             
-            # Add word number for first 20 words
+            # Add line number for first 20 lines
             if i < 20:
                 page.insert_text(
                     pymupdf.Point(bbox[0], bbox[1] - 2),
-                    f"W{i}",
-                    fontsize=6,
+                    f"L{i}",
+                    fontsize=8,
                     color=color
                 )
                 
         except Exception as e:
-            print(f"Error drawing word {i}: {e}")
+            print(f"Error drawing line {i}: {e}")
             continue
     
     # Add a legend on the first page
@@ -104,8 +106,8 @@ def test_visualize_word_bboxes():
         legend_y = 30
         first_page.insert_text(
             pymupdf.Point(30, legend_y),
-            "Word-level Bounding Box Visualization (First 50 words)",
-            fontsize=10,
+            "Line-level Bounding Box Visualization",
+            fontsize=12,
             color=(0, 0, 0)
         )
         
@@ -129,19 +131,19 @@ def test_visualize_word_bboxes():
     
     print(f"\n🎉 Visualization saved to: {output_pdf}")
     print(f"📊 Statistics:")
-    print(f"   - Total words: {len(word_boxes)}")
-    print(f"   - Words visualized: {min(50, len(word_boxes))}")
-    print(f"   - Pages processed: {len(set(box['page'] for box in word_boxes))}")
+    print(f"   - Total lines: {len(line_boxes)}")
+    print(f"   - Lines visualized: {len(line_boxes)}")
+    print(f"   - Pages processed: {len(set(box['page'] for box in line_boxes))}")
     
     # Show page distribution
     page_counts = {}
-    for box in word_boxes:
+    for box in line_boxes:
         page = box['page']
         page_counts[page] = page_counts.get(page, 0) + 1
     
-    print(f"   - Words per page: {dict(sorted(page_counts.items()))}")
+    print(f"   - Lines per page: {dict(sorted(page_counts.items()))}")
     
-    return output_pdf, word_boxes
+    return output_pdf, line_boxes
 
 def test_text_extraction_only():
     """Quick test to check text extraction without visualization."""
@@ -163,7 +165,7 @@ def test_text_extraction_only():
     print(text[:300])
     print("-" * 60)
     print(f"Total text length: {len(text)} characters")
-    print(f"Total word bboxes: {len(boxes)}")
+    print(f"Total line bboxes: {len(boxes)}")
     
     # Show extraction method used per page
     extraction_methods = {}
@@ -173,7 +175,7 @@ def test_text_extraction_only():
             extraction_methods[page] = 0
         extraction_methods[page] += 1
     
-    print(f"Word boxes per page: {dict(sorted(extraction_methods.items()))}")
+    print(f"Line boxes per page: {dict(sorted(extraction_methods.items()))}")
     
     return text, boxes
 
@@ -203,12 +205,12 @@ def test_compare_pdfs():
             results.append({
                 'file': os.path.basename(pdf_path),
                 'text_length': len(text),
-                'word_count': len(boxes),
+                'line_count': len(boxes),
                 'pages': len(set(box['page'] for box in boxes)),
-                'avg_words_per_page': len(boxes) / len(set(box['page'] for box in boxes)) if boxes else 0
+                'avg_lines_per_page': len(boxes) / len(set(box['page'] for box in boxes)) if boxes else 0
             })
             
-            print(f"   ✅ Text: {len(text)} chars, Words: {len(boxes)}, Pages: {len(set(box['page'] for box in boxes))}")
+            print(f"   ✅ Text: {len(text)} chars, Lines: {len(boxes)}, Pages: {len(set(box['page'] for box in boxes))}")
             
         except Exception as e:
             print(f"   ❌ Error processing {pdf_path}: {e}")
@@ -217,11 +219,11 @@ def test_compare_pdfs():
     # Summary table
     print("\n📊 COMPARISON SUMMARY:")
     print("-" * 80)
-    print(f"{'File':<30} {'Text Len':<10} {'Words':<8} {'Pages':<6} {'Words/Page':<12}")
+    print(f"{'File':<30} {'Text Len':<10} {'Lines':<8} {'Pages':<6} {'Lines/Page':<12}")
     print("-" * 80)
     
     for result in results:
-        print(f"{result['file']:<30} {result['text_length']:<10} {result['word_count']:<8} {result['pages']:<6} {result['avg_words_per_page']:<12.1f}")
+        print(f"{result['file']:<30} {result['text_length']:<10} {result['line_count']:<8} {result['pages']:<6} {result['avg_lines_per_page']:<12.1f}")
     
     return results
 
@@ -233,10 +235,10 @@ if __name__ == "__main__":
     print("\n=== TEST 1: TEXT EXTRACTION ===")
     text_result = test_text_extraction_only()
     
-    # Test 2: Word-level bounding box visualization  
-    print("\n=== TEST 2: WORD BBOX VISUALIZATION ===")
+    # Test 2: Line-level bounding box visualization  
+    print("\n=== TEST 2: LINE BBOX VISUALIZATION ===")
     try:
-        output_file, word_data = test_visualize_word_bboxes()
+        output_file, line_data = test_visualize_line_bboxes()
         if output_file and os.path.exists(output_file):
             print(f"✅ Visualization created: {output_file}")
         else:
@@ -256,6 +258,6 @@ if __name__ == "__main__":
     print("✨ All tests complete!")
     
     if output_file:
-        print(f"📖 Open '{output_file}' to see the word-level bounding boxes!")
+        print(f"📖 Open '{output_file}' to see the line-level bounding boxes!")
     
     print("📂 Test outputs saved in tests/ directory")
