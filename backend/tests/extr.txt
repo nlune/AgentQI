@@ -1,0 +1,199 @@
+CERTIFICATE
+
+CERTIFIED REFERENCE MATERIAL BAM-S030
+
+Coal
+
+
+
+
+                                    Certified Values
+
+
+             Parameter          Mass fraction 1) in %      Uncertainty 2) in %
+
+       Volatile compound content           22.4                    0.5
+           Ash content                 9.02                     0.15
+
+                1)  Unweighted mean value of the means of accepted sets of data (consisting of at least 3, but normally
+        4 single results) corrected to the dry mass content of the material, each set being obtained by a
+           different laboratory and/or a different method of measurement.
+             2) Estimated expanded uncertainty U with a coverage factor of k = 2, corresponding to a level of
+          confidence of approx. 95 %, as defined in the Guide to the expression of uncertainty in
+         measurement, (GUM, ISO/IEC Guide 98-3:2008).
+
+
+                               Informative Value
+
+
+             Parameter          Mass fraction 1) in %     Uncertainty 2) in %
+
+              Moisture                     1.50                    0.27
+
+                1)  Unweighted mean value of the means of accepted sets of data (consisting of 4 single results),
+         each set being obtained by a different laboratory and/or a different method of measurement.
+             2) Estimated expanded uncertainty U with a coverage factor of k = 2, corresponding to a level of
+          confidence of approx. 95 %, as defined in the Guide to the expression of uncertainty in
+         measurement, (GUM, ISO/IEC Guide 98-3:2008).
+
+
+End of Validity
+This certificate is valid for a period of 24 months starting with the dispatch of the reference
+material from BAM.
+
+Date of dispatch:                         Sample No.:
+
+
+
+
+
+CERTIFICATE BAM-S030                                                                     Page 1 of 4
+Material Description
+The Reference Material is available in amber glass bottles containing 15 g of coal each. The bottles
+were sealed with aluminum foil to close them airtight.
+
+Recommended Use
+BAM-S030 is explicitly meant only to be used in analytical laboratories. The intended purpose of
+reference material BAM-S030 is the verification of analytical procedures equivalent to DIN 51718 [1],
+DIN 51719 [2], and DIN 51720 [3] for the determination of the volatile compounds and ash content as
+well as moisture in coal. It is also intended to be used in thermogravimetric analysers (MTGA) for the
+determination of the parameters mentioned above. It is strongly recommended to handle and
+dispose of the reference material in accordance with the guidelines for analytical coal samples legally
+in force at the site of end use and disposal.
+
+Transport and Storage
+The material should be stored in a dry and clean environment at a temperature of 4 °(4 ± 2) C.
+Transport can be done under normal ambient conditions.
+
+Instructions for Use
+Before withdrawing a sub-sample, the bottle should be allowed to reach room temperature.
+Thereafter, the bottle should be closed tightly and stored at (4 ± 2) °C. The stability of the reference
+material is not affected by short periods of handling at ambient temperature during transport and
+use. The minimum sample size for a determination is 0.5 g.
+All analytical results have to be corrected for dry mass content of the material which should be
+determined using a separate sub-sample.
+
+Metrological Traceability
+The certified parameters volatile compounds and ash content as well as the informative parameter
+moisture are determined only by weighing differences before and after heating the material.
+Therefore, the values are directly traceable to the SI (Système International d’Unités).
+
+Participating Laboratories
+Salzgitter Flachstahl AG, Salzgitter, Germany
+Bundesanstalt für Materialforschung und -prüfung (BAM), Berlin (Germany)
+EnBW Energie Baden-Württemberg AG, Altbach (Germany)
+Labor Kraftwerk Heyden, Petershagen (Germany)
+SWM – Stadtwerke München, Unterföhring (Germany)
+Saarstahl AG, Völklingen, (Germany)
+Stadtwerke Flensburg GmbH, Flensburg (Germany)
+Stahlwerk Thüringen GmbH, Unterwellenborn (Germany)
+Umweltlabor ACB GmbH, Münster (Germany)
+VDZ Service GmbH, Düsseldorf (Germany)
+Precisa Gravimetrics AG, Dietikon (Switzerland)
+
+
+
+
+
+CERTIFICATE BAM-S030                                                                Page 2 of 4
+Means of Accepted Data Sets
+
+Certified values                            Informative values
+Mass fraction in %
+                 Volatile
+  Line No.   compound     Ash content         Moisture
+               content
+      1              ---             8.84                      ---
+     2           21.48            8.87                   1.03
+     3           21.78              8.91                   1.09
+    4           21.94            8.92                        1.17
+     5            22.21            8.95                   1.26
+    6          22.46            8.99                      1.31
+     7          22.50            9.02                     1.37
+    8          22.65            9.03                   1.44
+     9          23.00            9.05                   1.46
+     10           23.16                9.11                   1.48
+      11           23.31              9.19                   1.84
+     12                            9.33                  1.84
+     13                                  ---                  2.03
+    14                                                               2.11
+
+  M          22.45            9.02                   1.50
+    s M           0.61              0.14                 0.36
+      is            0.13            0.05                0.06
+
+The laboratory mean values have been examined statistically to eliminate outlying values. Where a ” --- ” appears in the
+table it indicates that an outlying value has been omitted. A data set consists of at least 3 but usually 4 single values of one
+laboratory. All values were corrected for the moisture content determined in the resp. laboratory.
+  M  : mean of laboratory means
+     s M : standard deviation of laboratory means
+       is : averaged repeatability standard deviation (square root of the mean of laboratory variances)
+
+Analytical Methods
+Parameter             Line Number           Method
+-----------------------------------------------------------------------------------------------------
+Volatile compound       2, 3, 4, 5, 6, 8, 9           DIN 51720
+content                     7, 10, 11              MTGA
+
+Ash content                   1, 2, 4, 5, 6, 9, 11, 12        DIN 51719
+                            3, 7, 8, 10            MTGA
+
+Moisture                   2, 3, 5, 6, 7, 10, 11, 14       DIN 51718
+                           4, 8, 9, 12, 13          MTGA
+
+Abbreviations:
+MTGA – Macro thermogravimetric analysis
+
+
+
+
+
+CERTIFICATE BAM-S030                                                                Page 3 of 4
+Literature
+     [1] DIN 51718:2002 Prüfung fester Brennstoffe - Bestimmung des Wassergehaltes und der
+       Analysenfeuchte
+
+
+    [2] DIN 51719:1997 Prüfung fester Brennstoffe - Bestimmung des Aschegehaltes
+
+
+    [3] DIN 51720:2001 Prüfung fester Brennstoffe - Bestimmung des Gehaltes an Flüchtigen
+       Bestandteilen
+
+A detailed technical report describing the analysis procedures and the treatment of the
+analytical data used to certify BAM-S030 is available on request or can be downloaded from
+BAM website (https://rrr.bam.de).
+
+
+                Accepted as a BAM-CRM on Month DD, YYYY
+
+      Bundesanstalt für Materialforschung und -prüfung (BAM)
+
+
+
+
+                                           (official seal)
+
+
+
+
+
+Dr. S. Richter                                                   Dr. S. Recknagel
+Committee for Certification                                  Project Coordinator
+
+                   This Certified Reference Material is offered by:
+
+
+             Bundesanstalt für Materialforschung und –prüfung (BAM)
+
+                  Richard-Willstätter-Str. 11, D-12489 Berlin, Germany
+
+ P:  +49 30 8104 2061                              E-Mail:  sales.crm@bam.de
+
+ F:  +49 30 8104 72061                              Internet: www.webshop.bam.de
+
+
+
+
+
+CERTIFICATE BAM-S030                                                                Page 4 of 4

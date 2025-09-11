@@ -1,0 +1,14 @@
+pillow
+pytesseract
+opencv-python
+pymupdf
+sentence-transformers
+chromadb
+pydantic-settings
+requests
+numpy
+fastapi
+uvicorn
+python-multipart
+pytest
+httpx
