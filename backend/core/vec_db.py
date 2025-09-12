@@ -52,10 +52,14 @@ def concatenate_documents(hit_dicts_list):
     return ''.join(documents), all_metadata
 
 class VecDB:
-    def __init__(self, settings: "BaseSettings", dbpath: str, collection_name: str, embedding_model: str):
+    def __init__(self, settings: "BaseSettings", dbpath: str = None, collection_name: str = "documents", embedding_model: str = "all-MiniLM-L6-v2"):
         self.model = SentenceTransformer(embedding_model)
         self.embedding_model = embedding_model
-        self.chroma_client = chromadb.PersistentClient(path=dbpath)
+        
+        # Use path from settings if not provided
+        db_path = dbpath or settings.db_path
+        
+        self.chroma_client = chromadb.PersistentClient(path=str(db_path))
         self.collection = self.chroma_client.get_or_create_collection(
             name=collection_name,
         )

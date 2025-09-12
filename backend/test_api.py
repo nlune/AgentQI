@@ -1,89 +1,68 @@
 #!/usr/bin/env python3
-"""
-Test script for the API endpoints.
-Usage: Start the FastAPI server first with: python main.py
-Then run this script to test the endpoints.
-"""
-
-import requests
-import json
-import os
+"""Single-query API test with highlight generation."""
+import requests, os
 
 API_BASE = "http://localhost:8000/api/v1"
 TEST_DOC = "Certificate-BAM-A001.pdf"
+SINGLE_QUERY = "What type of certificate is this?"
+
 
 def test_pdf_upload():
-    """Test PDF upload and processing endpoint."""
-    test_pdf = f"/home/lwei/Documents/AgentQI/test_files/{TEST_DOC}"
-    
-    if not os.path.exists(test_pdf):
-        print(f"Test file not found: {test_pdf}")
-        return False
-    
-    print("Testing PDF upload endpoint...")
-    
-    with open(test_pdf, 'rb') as f:
-        files = {'file': (os.path.basename(test_pdf), f, 'application/pdf')}
-        response = requests.post(f"{API_BASE}/process-pdf", files=files)
-    
-    if response.status_code == 200:
-        result = response.json()
-        print("✓ Upload successful")
-        print(f"  - Filename: {result.get('filename')}")
-        print(f"  - Text length: {result.get('text_length')}")
-        print(f"  - Line boxes: {result.get('line_boxes_count')}")
-        return True
-    else:
-        print(f"✗ Upload failed: {response.status_code}")
-        print(f"  Error: {response.text}")
-        return False
+    pdf_path = f"/home/lwei/Documents/AgentQI/test_files/{TEST_DOC}"
+    if not os.path.exists(pdf_path):
+        print("Missing test PDF:", pdf_path)
+        return None
+    print("Uploading PDF ...")
+    with open(pdf_path, 'rb') as f:
+        resp = requests.post(f"{API_BASE}/process-pdf", files={'file': (TEST_DOC, f, 'application/pdf')})
+    if resp.status_code != 200:
+        print("Upload failed", resp.status_code, resp.text)
+        return None
+    print("Upload OK")
+    return resp.json()
 
-def test_query_endpoint():
-    """Test the query endpoint."""
-    print("\nTesting query endpoint...")
-    
-    queries = [
-        "What type of certificate is this?",
-        "What are the test parameters?",
-        "Who issued this certificate?"
-    ]
-    
-    for q in queries:
-        print(f"\nQuery: {q}")
-        
-        try:
-            resp = requests.post(
-                f"{API_BASE}/query",
-                params={"query": q, "doc_name": TEST_DOC, "k": 5}
-            )
-            
-            if resp.status_code != 200:
-                print(f"✗ Query failed: {resp.status_code}")
-                print(f"  Error: {resp.text}")
-                continue
-            
-            data = resp.json()
-            print("✓ Query successful")
-            print(f"  - Result: {data.get('result', '')[:120]}...")
-            
-            ev = data.get('evidence', {})
-            print(f"  - Evidence doc_names: {ev.get('doc_name', [])}")
-            print(f"  - Evidence chunk_ids: {ev.get('chunk_id', [])}")
-            print(f"  - Context chunk count: {data.get('context_chunk_count')}\n")
-        
-        except requests.exceptions.ConnectionError:
-            print("✗ Connection failed - is the server running?")
-            return False
-    
-    return True
+
+def run_single_query():
+    print("\nRunning query ...")
+    resp = requests.post(f"{API_BASE}/query", params={"query": SINGLE_QUERY, "doc_name": TEST_DOC, "k": 5})
+    if resp.status_code != 200:
+        print("Query failed", resp.status_code, resp.text)
+        return None
+    data = resp.json()
+    ev = data.get('evidence', {})
+    chunk_ids = ev.get('chunk_id', []) or []
+    print("Query OK. Chunk IDs:", chunk_ids)
+    return data, chunk_ids
+
+
+def highlight(chunk_ids):
+    if not chunk_ids:
+        chunk_ids = [0]
+    payload = {"doc_name": TEST_DOC, "chunk_ids": chunk_ids[:3], "color": [1, 0.85, 0.2], "return_pdf": False}
+    print("\nCalling highlight with:", payload)
+    url = f"{API_BASE}/highlight"
+    resp = requests.post(url, json=payload)
+    if resp.status_code != 200:
+        print("Highlight 404? Ensure server restarted after adding endpoint.")
+        print("Status:", resp.status_code, "Body:", resp.text)
+        print("Debug: Trying health check /docs ->", requests.get("http://localhost:8000/docs").status_code)
+        return None
+    data = resp.json()
+    print("Highlight OK ->", data.get('annotated_pdf_url'))
+    return data
+
 
 def main():
-    print("=== AgentQI API Test ===\n")
-    
-    if test_pdf_upload():
-        test_query_endpoint()
-    
-    print("\n=== API Test Complete ===")
+    if not test_pdf_upload():
+        return
+    qr = run_single_query()
+    print("\nQuery Result:", qr)
+    if not qr:
+        return
+    _, chunk_ids = qr
+    highlight(chunk_ids)
+    print("\nDone")
+
 
 if __name__ == "__main__":
     main()

@@ -17,8 +17,8 @@ def test_complete_pipeline():
     """Test the complete document processing and query pipeline."""
     
     # Test file path
-    test_pdf = "/home/lwei/Documents/AgentQI/test_files/Certificate-BAM-A001.pdf"
-    
+    test_pdf = "/home/lwei/Documents/AgentQI/test_files/Certificate-BAM-S030.pdf"
+
     if not os.path.exists(test_pdf):
         print(f"Test file not found: {test_pdf}")
         return
@@ -39,12 +39,7 @@ def test_complete_pipeline():
     
     # Step 2: Vector Database Storage
     print("2. Storing in vector database...")
-    vec_db = VecDB(
-        settings=settings,
-        dbpath="./vector_db",
-        collection_name="documents",
-        embedding_model="all-MiniLM-L6-v2"
-    )
+    vec_db = VecDB(settings=settings)
     
     doc_name = os.path.basename(test_pdf)
     vec_db.add_document(doc_name, line_boxes)
