@@ -54,9 +54,6 @@ async def process_pdf(file: UploadFile = File(...)):
         # Initialize vector database
         vec_db = VecDB(
             settings=settings,
-            dbpath="./vector_db",
-            collection_name="documents",
-            embedding_model="all-MiniLM-L6-v2"
         )
         # Add document to vector database using line_boxes
         doc_name = file.filename
@@ -84,9 +81,6 @@ async def query_documents(query: str, doc_name: str, k: int = 5):
     try:
         vec_db = VecDB(
             settings=settings,
-            dbpath="./vector_db",
-            collection_name="documents",
-            embedding_model="all-MiniLM-L6-v2"
         )
         context, metadata = vec_db.get_context(query, doc_name)
         assistant = OllamaExtractor(settings)

@@ -1,9 +1,20 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from endpoints.ingest_pdf import router as pdf_router
 import os
 
 app = FastAPI(title="AgentQI PDF OCR API", version="1.0.0")
+
+# CORS (enable frontend dev / external origins)
+# For development, allow all origins. Tighten for production as needed.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Ensure storage directories exist
 os.makedirs(os.path.join("storage", "original_pdfs"), exist_ok=True)
