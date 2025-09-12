@@ -7,7 +7,7 @@ from utils import crop_right_rect
 from utils.process_text import process_text
 
 
-class OCRDocProcessor():
+class OCRDocProcessor:
     """
     OCR Document Processor for extracting text from images.
     """

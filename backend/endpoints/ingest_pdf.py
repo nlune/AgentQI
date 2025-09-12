@@ -1,10 +1,11 @@
-from backend.utils.chunking import split_wordboxes_chunks
+
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 import tempfile
 import os
 from core.doc_ocr import OCRDocProcessor
 from core.vec_db import VecDB
+from core.assistant import OllamaExtractor
 from . import settings
 
 router = APIRouter()
@@ -63,3 +64,35 @@ async def process_pdf(file: UploadFile = File(...)):
             os.unlink(temp_file_path)
         
         raise HTTPException(status_code=500, detail=f"Error processing PDF: {str(e)}")
+
+@router.post("/query")
+async def query_documents(query: str, doc_name: str, k: int = 5):
+    """Query a specific document and return structured JSON answer."""
+    try:
+        vec_db = VecDB(
+            settings=settings,
+            dbpath="./vector_db",
+            collection_name="documents",
+            embedding_model="all-MiniLM-L6-v2"
+        )
+        context, metadata = vec_db.get_context(query, doc_name)
+        assistant = OllamaExtractor(settings)
+        assistant_response = assistant.extract_from_document(query, context)
+
+        # Ensure expected keys exist
+        result = assistant_response.get("result", "") if isinstance(assistant_response, dict) else str(assistant_response)
+        evidence = assistant_response.get("evidence", {}) if isinstance(assistant_response, dict) else {"doc_name": [], "chunk_id": []}
+
+        return JSONResponse(
+            content={
+                "success": True,
+                "query": query,
+                "doc_name": doc_name,
+                "result": result,
+                "evidence": evidence,
+                "context_chunk_count": len(metadata),
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error querying documents: {str(e)}")
+    

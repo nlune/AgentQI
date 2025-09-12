@@ -13,6 +13,10 @@ def concatenate_documents(hit_dicts_list):
     """
     Concatenate documents from hit dictionaries and return metadata.
     Returns: (concatenated_text, list_of_metadata)
+    Each chunk now formatted as:
+    DOC_NAME <source> CHUNK_ID <chunk_idx>:
+    <text>
+    ---
     """
     documents = []
     all_metadata = []
@@ -25,29 +29,31 @@ def concatenate_documents(hit_dicts_list):
             for doc, metadata in zip(docs, metadatas):
                 chunk_idx = metadata.get('chunk_idx', 'Unknown')
                 header = metadata.get('header', '')
+                source = metadata.get('source', 'Unknown')
                 
                 # Convert bbox string back to list
                 bbox_str = metadata.get('bbox', '[]')
                 try:
-                    bbox = ast.literal_eval(bbox_str)  # <-- HERE: Convert string back to list
+                    bbox = ast.literal_eval(bbox_str)
                 except (ValueError, SyntaxError):
                     bbox = []
                 
-                # Format document with metadata
+                # Build standardized prefix
+                prefix = f"DOC_NAME {source} CHUNK_ID {chunk_idx}:"
                 header_text = f" (Header: {header})" if header else ""
-                formatted_doc = f"Chunk #{chunk_idx}{header_text}: {doc}\n\n"
+                body = f"{doc}".strip()
+                formatted_doc = f"{prefix}\n{body}{header_text}\n---\n"
                 documents.append(formatted_doc)
                 
-                # Add metadata with converted bbox
                 metadata_copy = metadata.copy()
-                metadata_copy['bbox'] = bbox  # <-- Store as list in returned metadata
+                metadata_copy['bbox'] = bbox
                 all_metadata.append(metadata_copy)
     
     return ''.join(documents), all_metadata
 
 class VecDB:
     def __init__(self, settings: "BaseSettings", dbpath: str, collection_name: str, embedding_model: str):
-        self.model = SentenceTransformer(embedding_model, device=settings.device)
+        self.model = SentenceTransformer(embedding_model)
         self.embedding_model = embedding_model
         self.chroma_client = chromadb.PersistentClient(path=dbpath)
         self.collection = self.chroma_client.get_or_create_collection(
