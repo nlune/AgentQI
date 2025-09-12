@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import './App.css'
+import PdfViewer from './components/PdfViewer.jsx'
 
 function useApiBase() {
   const defaultBase = import.meta.env.VITE_API_BASE || 'http://localhost:8000/api/v1'
@@ -15,10 +16,11 @@ function App() {
   const [docName, setDocName] = useState(null)
   const [pdfUrl, setPdfUrl] = useState(null)
   const [uploading, setUploading] = useState(false)
-  const [queryText, setQueryText] = useState('What type of certificate is this?')
+  const [queryText, setQueryText] = useState('')
   const [sending, setSending] = useState(false)
   const [messages, setMessages] = useState([]) // {role:'user'|'assistant', text}
   const [annotatedUrl, setAnnotatedUrl] = useState(null)
+  const [scrollTarget, setScrollTarget] = useState(null) // { page: 0-based, bbox: [x0,y0,x1,y1] }
   const fileRef = useRef()
 
   const haveDoc = !!docName
@@ -73,8 +75,31 @@ function App() {
       if (data.annotated_pdf_url) {
         const url = `${originBase}${data.annotated_pdf_url}`
         setAnnotatedUrl(url)
-        // add a cache-busting query in case the browser caches aggressively
-        setPdfUrl(`${url}?v=${Date.now()}`)
+        // Determine target page from highlight metadata (backend returns 0-based page)
+        let pageIdx = null
+        const highlights = Array.isArray(data.highlights) ? data.highlights : []
+        if (highlights.length) {
+          const pages = highlights
+            .map(h => (typeof h?.page === 'number' ? h.page : null))
+            .filter(p => Number.isFinite(p))
+          if (pages.length) {
+            pageIdx = Math.min(...pages)
+          }
+        }
+        // Choose a representative bbox (first valid) on that page
+        let bbox = null
+        if (pageIdx != null) {
+          const hOnPage = highlights.find(h => h.page === pageIdx && Array.isArray(h.bbox) && h.bbox.length >= 4)
+          if (hOnPage) bbox = hOnPage.bbox
+        }
+        const ver = Date.now()
+        const withQuery = `${url}?v=${ver}`
+        setPdfUrl(withQuery)
+        if (pageIdx != null && bbox) {
+          setScrollTarget({ page: pageIdx, bbox })
+        } else {
+          setScrollTarget(null)
+        }
       }
     } catch (e) {
       console.warn('Highlight error', e)
@@ -99,7 +124,7 @@ function App() {
           </div>
           <div className="viewer">
             {pdfUrl ? (
-              <iframe title="PDF Viewer" src={pdfUrl} />
+              <PdfViewer fileUrl={pdfUrl} target={scrollTarget} />
             ) : (
               <div style={{ padding: 16, color: '#9ca3af' }}>Upload a PDF to view it here.</div>
             )}

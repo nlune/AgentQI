@@ -157,6 +157,8 @@ def generate_highlight_pdf(
         "annotated_pdf_url": rel_url,
         "highlights": highlights,
         "cached": not needs_render,
+        "page": highlights[0]["page"] if highlights else None,
+        "bbox": highlights[0]["bbox"] if highlights else None,
     }
 
 __all__ = ["generate_highlight_pdf"]
