@@ -109,7 +109,7 @@ function App() {
   return (
     <div className="app">
       <div className="header">
-        <h1>AgentQI PDF QA</h1>
+        <h1>AgentQI</h1>
         <div className="api">
           <small>API base</small>
           <input type="text" value={apiBase} onChange={(e) => setApiBase(e.target.value)} placeholder="http://localhost:8000/api/v1" />
@@ -153,7 +153,7 @@ function App() {
               ))}
             </div>
             <div className="composer">
-              <textarea value={queryText} onChange={(e) => setQueryText(e.target.value)} placeholder="Ask a question about the PDF…" />
+              <textarea value={queryText} onChange={(e) => setQueryText(e.target.value)} placeholder="Type here..." />
               <button onClick={sendQuery} disabled={!docName || sending}>{sending ? 'Sending…' : 'Send'}</button>
             </div>
           </div>
