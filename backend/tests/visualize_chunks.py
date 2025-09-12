@@ -48,14 +48,8 @@ def visualize_chunk_bboxes():
     # Initialize vector database and add document
     print("🔄 Setting up vector database...")
     
-    # Clean up any existing test database
-    import shutil
-    test_db_path = "./test_vector_db"
-    if os.path.exists(test_db_path):
-        shutil.rmtree(test_db_path)
-        print("🧹 Cleaned up existing test database")
     
-    vec_db = VecDB(settings, test_db_path, "test_collection", "all-MiniLM-L6-v2")
+    vec_db = VecDB(settings)
     
     # Add document to vector database
     doc_name = "Certificate-BAM-A001"
