@@ -106,7 +106,15 @@ def generate_highlight_pdf(
     if not norm_ids:
         return {"success": False, "error": "No chunk IDs provided"}
 
-    annotated_name = f"{doc_name}__annotated.pdf"
+    # Determine color early for cache key
+    rgb = tuple(color[:3]) if color and len(color) >= 3 else (1, 0.85, 0.2)
+
+    # Build a cache key based on doc, chunk set, and color so different
+    # highlight requests produce distinct annotated files but can be reused
+    key = f"{doc_name}|{','.join(map(str, norm_ids))}|{','.join(map(lambda x: f'{x:.3f}', rgb))}"
+    key_hash = hashlib.md5(key.encode("utf-8")).hexdigest()[:10]
+
+    annotated_name = f"{doc_name}__annotated_{key_hash}.pdf"
     annotated_path = os.path.join(ANNOTATED_DIR, annotated_name)
 
     needs_render = not os.path.exists(annotated_path)
@@ -124,7 +132,6 @@ def generate_highlight_pdf(
     if needs_render:
         try:
             doc = pymupdf.open(original_path)
-            rgb = tuple(color[:3]) if color and len(color) >= 3 else (1, 0.85, 0.2)
             for h in highlights:
                 page_idx = h["page"]
                 if page_idx is None or page_idx >= len(doc):

@@ -18,6 +18,7 @@ function App() {
   const [queryText, setQueryText] = useState('What type of certificate is this?')
   const [sending, setSending] = useState(false)
   const [messages, setMessages] = useState([]) // {role:'user'|'assistant', text}
+  const [annotatedUrl, setAnnotatedUrl] = useState(null)
   const fileRef = useRef()
 
   const haveDoc = !!docName
@@ -70,7 +71,10 @@ function App() {
       const payload = { doc_name: docName, chunk_ids: chunkIds, color: [1, 0.85, 0.2], return_pdf: false }
       const { data } = await axios.post(`${apiBase}/highlight`, payload)
       if (data.annotated_pdf_url) {
-        setPdfUrl(`${originBase}${data.annotated_pdf_url}`)
+        const url = `${originBase}${data.annotated_pdf_url}`
+        setAnnotatedUrl(url)
+        // add a cache-busting query in case the browser caches aggressively
+        setPdfUrl(`${url}?v=${Date.now()}`)
       }
     } catch (e) {
       console.warn('Highlight error', e)
@@ -105,7 +109,11 @@ function App() {
               <span>Original:</span>
               <a href={`${originBase}/pdfs/original/${encodeURIComponent(docName)}`} target="_blank" rel="noreferrer">open</a>
               <span>Annotated:</span>
-              <a href={`${originBase}/pdfs/annotated/${encodeURIComponent(docName)}__annotated.pdf`} target="_blank" rel="noreferrer">open</a>
+              {annotatedUrl ? (
+                <a href={annotatedUrl} target="_blank" rel="noreferrer">open</a>
+              ) : (
+                <span style={{ color: '#6b7280' }}>n/a</span>
+              )}
             </>}
           </div>
         </div>
