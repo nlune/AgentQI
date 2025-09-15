@@ -1,4 +1,6 @@
-# AgentQI — PDF QA with Visual Evidence (Hackathon)
+LLM Hackathon for Applications in Materials & Chemistry
+
+# AgentQI — PDF QA with Visual Evidence 
 
 AgentQI is a lightweight RAG demo that turns a material certificate PDF into line‑aware chunks, stores them in a vector DB, and lets you query the document with an LLM. Answers come back with structured evidence (doc name + chunk ids), and the UI can render a highlighted PDF to show exactly where the answer came from.
 
@@ -123,5 +125,4 @@ MIT — see `LICENSE`.
 
 
 ---
-LLM Hackathon for Applications in Materials & Chemistry
 
